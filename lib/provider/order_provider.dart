@@ -18,8 +18,8 @@ class OrderProvider with ChangeNotifier {
     try {
       final response = await http.get(url);
       final List<OrderItem> loadedOrders = [];
-      final result = json.decode(response.body) as Map<String, dynamic>;
-      if(result.isEmpty ){
+      final result = json.decode(response.body) as Map<String, dynamic>? ;
+      if(result == null){
         return;
       }
       result.forEach((orderId, orderData) {
@@ -42,7 +42,7 @@ class OrderProvider with ChangeNotifier {
           ),
         );
       });
-      _orders = loadedOrders;
+      _orders = loadedOrders.reversed.toList();
       notifyListeners();
     } catch (error) {
       throw error;
