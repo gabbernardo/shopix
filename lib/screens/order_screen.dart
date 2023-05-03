@@ -15,20 +15,22 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  var _isInit = true;
+  var _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero).then((_) async {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<OrderProvider>(context, listen: false).fetchOrder();
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if(_isInit){
-      Provider.of<OrderProvider>(context, listen: false).fetchOrder();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +40,23 @@ class _OrderScreenState extends State<OrderScreen> {
         title: const Text('Order Screen'),
       ),
       drawer: const AppDrawer(),
-      body: ListView.builder(
-        itemCount: orderData.orders.length,
-        itemBuilder: (ctx, index) => OrderItemWidget(
-            orderItem: orderData.orders[index],
-        ),
-      ),
+      body: orderData.orders.isEmpty
+          ? const Center(
+              child: Text(
+                'No Orders Yet!',
+                style: TextStyle(fontSize: 15),
+              ),
+            )
+          : _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ListView.builder(
+                  itemCount: orderData.orders.length,
+                  itemBuilder: (ctx, index) => OrderItemWidget(
+                    orderItem: orderData.orders[index],
+                  ),
+                ),
     );
   }
 }
