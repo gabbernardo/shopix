@@ -88,7 +88,7 @@ class ProductsProvider with ChangeNotifier {
       });
       _items = loadedProducts;
       notifyListeners();
-      print(jsonDecode(response.body));
+      // print(jsonDecode(response.body));
     } catch (error) {
       throw error;
     }
