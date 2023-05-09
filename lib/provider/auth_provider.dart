@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shop_app/provider/model/http_exception.dart';
 
 class AuthProvider with ChangeNotifier {
   String? _token;
@@ -19,6 +20,10 @@ class AuthProvider with ChangeNotifier {
       }),
       );
       print(json.decode(response.body));
+      final responseData = json.decode(response.body);
+      if(responseData['error'] != null){
+        throw HttpException(responseData['error']['message']);
+      }
     }catch(error){
       throw error;
     }
