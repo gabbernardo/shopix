@@ -46,6 +46,7 @@ class AuthScreen extends StatelessWidget {
                           EdgeInsets.symmetric(vertical: 8.0, horizontal: 94.0),
                       transform: Matrix4.rotationZ(-8 * pi / 180)
                         ..translate(-10.0),
+
                       /// return what the first method use not the translate
                       /// when using '..'
                       decoration: BoxDecoration(
@@ -103,7 +104,7 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  Future<void> _submit() async{
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       // Invalid!
       return;
@@ -114,9 +115,12 @@ class _AuthCardState extends State<AuthCard> {
     });
     if (_authMode == AuthMode.Login) {
       // Log user in
+      await Provider.of<AuthProvider>(context, listen: false)
+          .signIn(_authData['email']!, _authData['password']!);
     } else {
       // Sign user up
-      await Provider.of<AuthProvider>(context, listen: false).signUp(_authData['email']!, _authData['password']!);
+      await Provider.of<AuthProvider>(context, listen: false)
+          .signUp(_authData['email']!, _authData['password']!);
     }
     setState(() {
       _isLoading = false;
@@ -201,17 +205,19 @@ class _AuthCardState extends State<AuthCard> {
                   CircularProgressIndicator()
                 else
                   ElevatedButton(
-                    child: Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                    child:
+                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       textStyle: Theme.of(context).textTheme.button?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                     ),
                   ),
                 TextButton(
@@ -223,7 +229,8 @@ class _AuthCardState extends State<AuthCard> {
                   ),
                   onPressed: _switchAuthMode,
                   style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
