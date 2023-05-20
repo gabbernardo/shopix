@@ -12,6 +12,9 @@ class AuthProvider with ChangeNotifier {
   bool get isAuth {
     return token != null;
   }
+  String? get userId {
+    return _userId;
+  }
 
   String? get token {
     if (_expiryDate != null &&
