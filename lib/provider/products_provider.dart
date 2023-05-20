@@ -73,9 +73,10 @@ class ProductsProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> fetchProduct() async {
+  Future<void> fetchProduct([bool isfilterByUser = false]) async {
+    final filterByUser = isfilterByUser ? 'orderBy="createdById"&equalTo="$userId"' : '';
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken&$filterByUser');
     final favoriteUrl = Uri.parse(
         'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorites/$userId.json?auth=$authToken');
     try {
@@ -124,6 +125,7 @@ class ProductsProvider with ChangeNotifier {
           'description': product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
+          'createdById': userId,
         }),
       );
       final newProduct = Product(
