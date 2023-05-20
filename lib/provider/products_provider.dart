@@ -41,6 +41,10 @@ class ProductsProvider with ChangeNotifier {
     // ),
   ];
 
+  final String authToken;
+
+  ProductsProvider(this.authToken, this._items);
+
   // var _showFavoritesOnly = false;
 
   List<Product> get items {
@@ -70,7 +74,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchProduct() async {
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final result = jsonDecode(response.body) as Map<String, dynamic>;
@@ -100,7 +104,7 @@ class ProductsProvider with ChangeNotifier {
      * parsing your incoming request
      * **/
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken');
     try {
       final response = await http.post(
         url,
@@ -134,7 +138,7 @@ class ProductsProvider with ChangeNotifier {
     if (productIndex >= 0) {
       try {
         final url = Uri.parse(
-            'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json');
+            'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$authToken');
         await http.patch(
           url,
           body: json.encode({
@@ -154,7 +158,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> removeProduct(String id) async {
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
     // immediately delete the product then store it in memory for a while

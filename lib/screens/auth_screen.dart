@@ -152,7 +152,7 @@ class _AuthCardState extends State<AuthCard> {
       }else if(error.toString().contains('EMAIL_NOT_FOUND')) {
         errorMessage= 'Cannot find the email address';
       }else if(error.toString().contains('INVALID_PASSWORD')) {
-        errorMessage= 'Use a valid password';
+        errorMessage= 'Invalid password';
       }
       _showErrorDialog(errorMessage);
     } catch(error){

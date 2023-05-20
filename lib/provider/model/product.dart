@@ -26,13 +26,13 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleStatusFavorite() async {
+  Future<void> toggleStatusFavorite(String token) async {
     final currentStatus = isFavorite;
     /// using '!' inverts the value of it
     isFavorite = !isFavorite;
     notifyListeners();
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$token');
     try {
       final response = await http.patch(
         url,
