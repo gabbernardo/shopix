@@ -3,7 +3,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/provider/model/http_exception.dart';
+import 'package:shop_app/provider/products_provider.dart';
 import 'package:shop_app/services/constants.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -54,6 +56,13 @@ class AuthProvider with ChangeNotifier {
       );
       _autoLogout();
       notifyListeners();
+      final sharedPref = await SharedPreferences.getInstance();
+      final userData = json.encode({
+        'token': _token,
+        'userId': _userId,
+        'expiryDate': _expiryDate!.toIso8601String(),
+      });
+      sharedPref.setString('userData', userData);
     } catch (error) {
       throw error;
     }
@@ -67,7 +76,31 @@ class AuthProvider with ChangeNotifier {
     return _authenticate(email, password, 'signInWithPassword');
   }
 
-  void logout() {
+  Future<bool> tryAutoLogin() async {
+    final sharedPref = await SharedPreferences.getInstance();
+    if(!sharedPref.containsKey('userData')){
+      return false;
+    }
+    final userData = sharedPref.getString('userData');
+
+    if(userData == null){
+      return false;
+    }
+    final extractedData = json.decode(userData) as Map<String, dynamic>;
+    final expiryDate = DateTime.parse(extractedData['expiryDate']);
+
+    if(expiryDate.isBefore(DateTime.now())){
+      return false;
+    }
+    _token = extractedData['token'];
+    _userId = extractedData['userId'];
+    _expiryDate = expiryDate;
+    notifyListeners();
+    _autoLogout();
+    return true;
+  }
+
+  Future<void> logout() async {
     _token = null;
     _userId = null;
     _expiryDate = null;
@@ -75,6 +108,11 @@ class AuthProvider with ChangeNotifier {
       _authTimer!.cancel();
       _authTimer = null;
     }
+    final sharedPref = await SharedPreferences.getInstance();
+    /// For specific sharedPref Data
+    // sharedPref.remove('userData');
+    /// for all sharedPref Data;
+    sharedPref.clear();
     notifyListeners();
   }
 

@@ -41,8 +41,8 @@ class ProductsProvider with ChangeNotifier {
     // ),
   ];
 
-  final String authToken;
-  final String userId;
+   String authToken;
+   String userId;
 
   ProductsProvider(this.authToken, this.userId, this._items);
 
@@ -183,6 +183,12 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
       throw HttpException('Could not delete product.');
     }
+    notifyListeners();
+  }
+
+  void updateUser(String token, String id) {
+    userId = id;
+    authToken = token;
     notifyListeners();
   }
 }
