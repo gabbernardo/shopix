@@ -9,8 +9,9 @@ class OrderProvider with ChangeNotifier {
   List<OrderItem> _orders = [];
 
   final String authToken;
+  final String userId;
 
-  OrderProvider(this.authToken, this._orders);
+  OrderProvider(this.authToken, this.userId,this._orders);
 
   List<OrderItem> get orders {
     return [..._orders];
@@ -18,7 +19,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> fetchOrder() async {
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json?auth=$authToken');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/orders/$userId.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final List<OrderItem> loadedOrders = [];
@@ -57,7 +58,7 @@ class OrderProvider with ChangeNotifier {
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final timeStamp = DateTime.now();
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json?auth=$authToken');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/orders/$userId.json?auth=$authToken');
     try {
       final response = await http.post(
         url,

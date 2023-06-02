@@ -10,6 +10,7 @@ import 'package:shop_app/screens/edit_product_screen.dart';
 import 'package:shop_app/screens/order_screen.dart';
 import 'package:shop_app/screens/product_detail_screen.dart';
 import 'package:shop_app/screens/products_overview_screen.dart';
+import 'package:shop_app/screens/splash_screen.dart';
 import 'package:shop_app/screens/user_product_screen.dart';
 
 void main() {
@@ -28,17 +29,22 @@ class MyApp extends StatelessWidget {
           create: (ctx) => AuthProvider(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
-          create: (ctx) => ProductsProvider('', []),
-          update: (ctx, auth, previousProducts) => ProductsProvider(auth.token!,
-              previousProducts == null ? [] : previousProducts.items),
+          create: (ctx) => ProductsProvider('', '', []),
+          update: (ctx, auth, previousProducts) =>  previousProducts!
+            ..updateUser(
+              auth.token!,
+              auth.userId!,
+            ),
         ),
         ChangeNotifierProvider(
           create: (ctx) => CartProvider(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, OrderProvider>(
-          create: (ctx) => OrderProvider('', []),
+          create: (ctx) => OrderProvider('', '', []),
           update: (ctx, auth, previousOrder) => OrderProvider(
-              auth.token!, previousOrder == null ? [] : previousOrder.orders),
+              auth.token ?? '',
+              auth.userId ?? '',
+              previousOrder == null ? [] : previousOrder.orders),
         ),
       ],
       child: Consumer<AuthProvider>(
@@ -49,7 +55,12 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.purple)
                   .copyWith(secondary: Colors.amber),
               fontFamily: 'Lato'),
-          home: auth.isAuth ? ProductOverviewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProductOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) => authResultSnapshot.connectionState == ConnectionState.waiting ? SplashScreen() : AuthScreen(),
+                ),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),

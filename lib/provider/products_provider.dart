@@ -41,9 +41,10 @@ class ProductsProvider with ChangeNotifier {
     // ),
   ];
 
-  final String authToken;
+   String authToken;
+   String userId;
 
-  ProductsProvider(this.authToken, this._items);
+  ProductsProvider(this.authToken, this.userId, this._items);
 
   // var _showFavoritesOnly = false;
 
@@ -72,23 +73,34 @@ class ProductsProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> fetchProduct() async {
+  Future<void> fetchProduct([bool isfilterByUser = false]) async {
+    final filterByUser = isfilterByUser ? 'orderBy="createdById"&equalTo="$userId"' : '';
     final url = Uri.parse(
-        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken');
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken&$filterByUser');
+    final favoriteUrl = Uri.parse(
+        'https://shopix-8d8fd-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorites/$userId.json?auth=$authToken');
     try {
       final response = await http.get(url);
-      final result = jsonDecode(response.body) as Map<String, dynamic>;
+      final result = jsonDecode(response.body) as Map<String, dynamic>?;
+      if (result == null) {
+        return;
+      }
+      final favoriteResponse = await http.get(favoriteUrl);
+      final favoriteData = json.decode(favoriteResponse.body);
 
       /// temporary list of Data
       final List<Product> loadedProducts = [];
       result.forEach((prodId, prodData) {
-        loadedProducts.add(Product(
-            id: prodId,
-            title: prodData['title'],
-            description: prodData['description'],
-            price: prodData['price'],
-            imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite']));
+        loadedProducts.add(
+          Product(
+              id: prodId,
+              title: prodData['title'],
+              description: prodData['description'],
+              price: prodData['price'],
+              imageUrl: prodData['imageUrl'],
+              isFavorite: favoriteData == null ? false : favoriteData[prodId] ?? false,
+          ),
+        );
       });
       _items = loadedProducts;
       notifyListeners();
@@ -113,7 +125,7 @@ class ProductsProvider with ChangeNotifier {
           'description': product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
-          'isFavorite': product.isFavorite
+          'createdById': userId,
         }),
       );
       final newProduct = Product(
@@ -171,6 +183,12 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
       throw HttpException('Could not delete product.');
     }
+    notifyListeners();
+  }
+
+  void updateUser(String token, String id) {
+    userId = id;
+    authToken = token;
     notifyListeners();
   }
 }
