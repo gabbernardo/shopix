@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
           create: (ctx) => ProductsProvider('', '', []),
           update: (ctx, auth, previousProducts) =>  previousProducts!
             ..updateUser(
-              auth.token!,
-              auth.userId!,
+              auth.token ?? '',
+              auth.userId ?? '',
             ),
         ),
         ChangeNotifierProvider(
