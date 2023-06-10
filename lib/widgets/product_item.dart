@@ -38,7 +38,7 @@ class ProductItem extends StatelessWidget {
                   : Icons.favorite_border),
               color: Theme.of(context).colorScheme.secondary,
               onPressed: () {
-                productData.toggleStatusFavorite(auth.token!, auth.userId! );
+                productData.toggleStatusFavorite(auth.token!, auth.userId!);
               },
             ),
           ),
@@ -47,11 +47,14 @@ class ProductItem extends StatelessWidget {
             color: Theme.of(context).colorScheme.secondary,
             onPressed: () {
               cartData.addItem(
-                  productData.id, productData.price, productData.title, productData.imageUrl,
+                productData.id,
+                productData.price,
+                productData.title,
+                productData.imageUrl,
               );
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
-                 SnackBar(
+                SnackBar(
                   content: const Text('Added Item to cart!'),
                   duration: const Duration(seconds: 2),
                   action: SnackBarAction(
@@ -69,9 +72,12 @@ class ProductItem extends StatelessWidget {
             Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
                 arguments: productData.id);
           },
-          child: Image.network(
-            productData.imageUrl,
-            fit: BoxFit.cover,
+          child: Hero(
+            tag: productData.id,
+            child: FadeInImage(
+                placeholder: AssetImage('assets/images/loading_images/shopping.png'),
+                image: NetworkImage(productData.imageUrl),
+                fit: BoxFit.cover),
           ),
         ),
       ),
